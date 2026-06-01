@@ -1,62 +1,21 @@
-// SessionExpiredBanner.jsx
-// Displays a dismissible banner on /login when redirected due to session expiry.
-// Uses React Router's useLocation to read the message passed via navigate state.
-
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 export default function SessionExpiredBanner() {
-  const { state } = useLocation();
-  const [visible, setVisible] = useState(false);
-  const [message, setMessage] = useState('');
+  const { isAuthenticated } = useAuth();
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (state?.message) {
-      setMessage(state.message);
-      setVisible(true);
-
-      // Auto-dismiss after 8 seconds.
-      const timer = setTimeout(() => setVisible(false), 8_000);
-      return () => clearTimeout(timer);
+    if (isAuthenticated) {
+      setIsVisible(false);
     }
-  }, [state]);
+  }, [isAuthenticated]);
 
-  if (!visible) return null;
+  if (!isVisible || isAuthenticated) return null;
 
   return (
-    <div
-      role="alert"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '12px',
-        padding: '12px 16px',
-        marginBottom: '20px',
-        borderRadius: '8px',
-        backgroundColor: '#fff3cd',
-        border: '1px solid #ffc107',
-        color: '#7d4e00',
-        fontSize: '0.9rem',
-        fontWeight: 500,
-      }}
-    >
-      <span>⚠️ {message}</span>
-      <button
-        onClick={() => setVisible(false)}
-        aria-label="Dismiss"
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          fontSize: '1.1rem',
-          color: 'inherit',
-          lineHeight: 1,
-          padding: 0,
-        }}
-      >
-        ✕
-      </button>
+    <div className="session-expired-banner">
+      <span>Your session has expired. Please log in again to continue.</span>
     </div>
   );
 }
